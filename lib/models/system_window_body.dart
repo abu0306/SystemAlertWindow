@@ -30,9 +30,15 @@ class EachRow {
   SystemWindowMargin margin;
   ContentGravity gravity;
   SystemWindowDecoration decoration;
+  bool last;
 
   EachRow(
-      {this.columns, this.padding, this.margin, this.gravity, this.decoration});
+      {this.columns,
+      this.padding,
+      this.margin,
+      this.gravity,
+      this.decoration,
+      this.last});
 
   Map<String, dynamic> getMap() {
     final Map<String, dynamic> map = <String, dynamic>{
@@ -42,7 +48,8 @@ class EachRow {
       'padding': padding?.getMap(),
       'margin': margin?.getMap(),
       'gravity': Commons.getContentGravity(gravity),
-      'decoration': decoration?.getMap()
+      'decoration': decoration?.getMap(),
+      'last': last ?? false,
     };
     return map;
   }

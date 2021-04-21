@@ -2,16 +2,23 @@ package in.jvapps.system_alert_window.views;
 
 import android.content.Context;
 import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.GradientDrawable;
+import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import androidx.core.content.ContextCompat;
+
 import java.util.Map;
 
+import in.jvapps.system_alert_window.R;
 import in.jvapps.system_alert_window.models.Decoration;
 import in.jvapps.system_alert_window.models.Padding;
 import in.jvapps.system_alert_window.utils.Commons;
@@ -63,6 +70,31 @@ public class HeaderView {
         }
 
         return relativeLayout;
+    }
+
+    public LinearLayout duedexView() {
+
+        LinearLayout linearLayout = new LinearLayout(context);
+        linearLayout.setOrientation(LinearLayout.VERTICAL);
+        LinearLayout.LayoutParams mainLayout = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+        linearLayout.setLayoutParams(mainLayout);
+        linearLayout.setGravity(Gravity.CENTER);
+
+        LinearLayout.LayoutParams imageLayout = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, Commons.getPixelsFromDp(context, 17));
+        imageLayout.topMargin = Commons.getPixelsFromDp(context, 6);
+        imageLayout.bottomMargin = Commons.getPixelsFromDp(context, 3);
+        ImageView imageView = new ImageView(context);
+        imageView.setImageDrawable(context.getResources().getDrawable(R.drawable.top_logo));
+        imageView.setLayoutParams(imageLayout);
+        linearLayout.addView(imageView, imageLayout);
+
+        LinearLayout.LayoutParams lineLayoutParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, Commons.getPixelsFromDp(context, 1));
+        TextView line = new TextView(context);
+        line.setBackgroundColor(Color.parseColor("#FFFFFF"));
+        line.getBackground().setAlpha(25);
+        linearLayout.addView(line, lineLayoutParams);
+        return linearLayout;
+
     }
 
     public LinearLayout getView() {

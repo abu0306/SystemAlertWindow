@@ -46,5 +46,7 @@ public class Constants {
     public static final String KEY_HEIGHT = "height";
     public static final String KEY_ROWS = "rows";
     public static final String KEY_COLUMNS = "columns";
+    public static final String KEY_LAST = "last";
+
 
 }

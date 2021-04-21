@@ -3,6 +3,7 @@ package in.jvapps.system_alert_window.views;
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.drawable.GradientDrawable;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.LinearLayout;
@@ -19,6 +20,7 @@ import in.jvapps.system_alert_window.utils.UiBuilder;
 import static in.jvapps.system_alert_window.utils.Constants.KEY_COLUMNS;
 import static in.jvapps.system_alert_window.utils.Constants.KEY_DECORATION;
 import static in.jvapps.system_alert_window.utils.Constants.KEY_GRAVITY;
+import static in.jvapps.system_alert_window.utils.Constants.KEY_LAST;
 import static in.jvapps.system_alert_window.utils.Constants.KEY_PADDING;
 import static in.jvapps.system_alert_window.utils.Constants.KEY_ROWS;
 import static in.jvapps.system_alert_window.utils.Constants.KEY_TEXT;
@@ -36,18 +38,18 @@ public class BodyView {
         LinearLayout linearLayout = new LinearLayout(context);
         linearLayout.setOrientation(LinearLayout.VERTICAL);
         Decoration decoration = UiBuilder.getDecoration(context, bodyMap.get(KEY_DECORATION));
-        if(decoration != null){
+        if (decoration != null) {
             GradientDrawable gd = UiBuilder.getGradientDrawable(decoration);
             linearLayout.setBackground(gd);
-        }else{
-            linearLayout.setBackgroundColor(Color.WHITE);
+        } else {
+            linearLayout.setBackgroundColor(Color.alpha(0));
         }
         LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,
                 LinearLayout.LayoutParams.WRAP_CONTENT);
         Commons.setMargin(context, params, bodyMap);
         linearLayout.setLayoutParams(params);
         Padding padding = UiBuilder.getPadding(context, bodyMap.get(KEY_PADDING));
-        linearLayout.setPadding(padding.getLeft(), padding.getTop(), padding.getRight(), padding.getBottom());
+//        linearLayout.setPadding(padding.getLeft(), padding.getTop(), padding.getRight(), padding.getBottom());
         @SuppressWarnings("unchecked")
         List<Map<String, Object>> rowsMap = (List<Map<String, Object>>) bodyMap.get(KEY_ROWS);
         if (rowsMap != null) {
@@ -61,7 +63,7 @@ public class BodyView {
 
     private View createRow(Map<String, Object> rowMap) {
         LinearLayout linearLayout = new LinearLayout(context);
-        linearLayout.setOrientation(LinearLayout.HORIZONTAL);
+        linearLayout.setOrientation(LinearLayout.VERTICAL);
         LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,
                 LinearLayout.LayoutParams.WRAP_CONTENT);
         Commons.setMargin(context, params, rowMap);
@@ -69,23 +71,41 @@ public class BodyView {
         linearLayout.setGravity(Commons.getGravity((String) rowMap.get(KEY_GRAVITY), Gravity.START));
         Padding padding = UiBuilder.getPadding(context, rowMap.get(KEY_PADDING));
         linearLayout.setPadding(padding.getLeft(), padding.getTop(), padding.getRight(), padding.getBottom());
+
+
         Decoration decoration = UiBuilder.getDecoration(context, rowMap.get(KEY_DECORATION));
-        if(decoration != null){
+        if (decoration != null) {
+            Log.d("VV","++++++++++++++++++");
+            Log.d("VV",rowMap.get(KEY_DECORATION).toString());
+
             GradientDrawable gd = UiBuilder.getGradientDrawable(decoration);
             linearLayout.setBackground(gd);
         }
         @SuppressWarnings("unchecked")
         List<Map<String, Object>> columnsMap = (List<Map<String, Object>>) rowMap.get(KEY_COLUMNS);
         if (columnsMap != null) {
+
+
             for (int j = 0; j < columnsMap.size(); j++) {
                 Map<String, Object> column = columnsMap.get(j);
                 linearLayout.addView(createColumn(column));
             }
         }
+
+        Boolean last = (Boolean) rowMap.get(KEY_LAST);
+
+        if (!last) {
+            LinearLayout.LayoutParams lineLayoutParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, Commons.getPixelsFromDp(context, 1));
+            TextView line = new TextView(context);
+            line.setBackgroundColor(Color.parseColor("#FFFFFF"));
+            line.getBackground().setAlpha(25);
+            linearLayout.addView(line, lineLayoutParams);
+        }
+
         return linearLayout;
     }
 
-    private View createColumn(Map<String, Object> columnMap){
+    private View createColumn(Map<String, Object> columnMap) {
         LinearLayout columnLayout = new LinearLayout(context);
         columnLayout.setOrientation(LinearLayout.HORIZONTAL);
         LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT,
@@ -95,7 +115,7 @@ public class BodyView {
         Padding padding = UiBuilder.getPadding(context, columnMap.get(KEY_PADDING));
         columnLayout.setPadding(padding.getLeft(), padding.getTop(), padding.getRight(), padding.getBottom());
         Decoration decoration = UiBuilder.getDecoration(context, columnMap.get(KEY_DECORATION));
-        if(decoration != null){
+        if (decoration != null) {
             GradientDrawable gd = UiBuilder.getGradientDrawable(decoration);
             columnLayout.setBackground(gd);
         }
