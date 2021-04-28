@@ -83,10 +83,10 @@ public class SystemAlertWindowPlugin extends Activity implements MethodCallHandl
             case "checkPermissions":
                 if (askPermission()) {
 //                    result.success("Permissions are granted");
-                    result.success("0");
+                    result.success("1");
                 } else {
 //                    result.success("Permissions are not granted");
-                    result.success("1");
+                    result.success("0");
                 }
                 break;
             case "showSystemWindow":
