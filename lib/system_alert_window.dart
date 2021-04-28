@@ -37,8 +37,8 @@ class SystemAlertWindow {
     return version;
   }
 
-  static Future<void> get checkPermissions async {
-    await _channel.invokeMethod('checkPermissions');
+  static Future<dynamic> get checkPermissions async {
+    return await _channel.invokeMethod('checkPermissions');
   }
 
   static Future<bool> registerOnClickListener(
