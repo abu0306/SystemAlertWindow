@@ -49,7 +49,7 @@ import static in.jvapps.system_alert_window.utils.Constants.KEY_HEIGHT;
 import static in.jvapps.system_alert_window.utils.Constants.KEY_MARGIN;
 import static in.jvapps.system_alert_window.utils.Constants.KEY_WIDTH;
 
-public class WindowServiceNew extends Service implements View.OnTouchListener {
+public class WindowServiceNew extends Service implements View.OnTouchListener, View.OnClickListener {
 
     private static final String TAG = WindowServiceNew.class.getSimpleName();
     public static final String CHANNEL_ID = "ForegroundServiceChannel";
@@ -87,9 +87,6 @@ public class WindowServiceNew extends Service implements View.OnTouchListener {
 //        Log.w(TAG, "widthPixel = " + widthPixel + ",heightPixel = " + heightPixel);
 //
 //
-
-
-
         createNotificationChannel();
         Intent notificationIntent = new Intent(this, SystemAlertWindowPlugin.class);
         PendingIntent pendingIntent = PendingIntent.getActivity(this,
@@ -151,7 +148,7 @@ public class WindowServiceNew extends Service implements View.OnTouchListener {
         windowMargin = UiBuilder.getMargin(mContext, paramsMap.get(KEY_MARGIN));
         windowGravity = (String) paramsMap.get(KEY_GRAVITY);
         windowWidth = NumberUtils.getInt(paramsMap.get(KEY_WIDTH));
-        windowWidthDP =  Commons.getPixelsFromDp(mContext,windowWidth);
+        windowWidthDP = Commons.getPixelsFromDp(mContext, windowWidth);
         windowHeight = NumberUtils.getInt(paramsMap.get(KEY_HEIGHT));
         headerView = new HeaderView(mContext, headersMap).duedexView();
         if (bodyMap != null)
@@ -187,22 +184,23 @@ public class WindowServiceNew extends Service implements View.OnTouchListener {
         return params;
     }
 
+
     @SuppressLint("ClickableViewAccessibility")
-    private void setWindowView(WindowManager.LayoutParams params,HashMap<String, Object> paramsMap, boolean isCreate) {
+    private void setWindowView(WindowManager.LayoutParams params, HashMap<String, Object> paramsMap, boolean isCreate) {
         boolean isEnableDraggable = true;//params.width == WindowManager.LayoutParams.MATCH_PARENT;
         if (isCreate) {
             windowView = new LinearLayout(mContext);
         }
         windowView.setOrientation(LinearLayout.VERTICAL);
 
-        Decoration decoration = new Decoration(Color.BLACK, Color.BLACK,0f,Commons.getPixelsFromDp(mContext,3),Color.RED,mContext);
+        Decoration decoration = new Decoration(Color.BLACK, Color.BLACK, 0f, Commons.getPixelsFromDp(mContext, 3), Color.RED, mContext);
 
         GradientDrawable gd = UiBuilder.getGradientDrawable(decoration);
         windowView.setBackground(gd);
 
-        double alpha = (double ) paramsMap.get("alpha");
+        double alpha = (double) paramsMap.get("alpha");
 
-        windowView.getBackground().setAlpha((int)(255 * alpha));
+        windowView.getBackground().setAlpha((int) (255 * alpha));
 
         windowView.setLayoutParams(params);
         windowView.removeAllViews();
@@ -211,8 +209,10 @@ public class WindowServiceNew extends Service implements View.OnTouchListener {
             windowView.addView(bodyView);
         if (footerView != null)
 //            windowView.addView(footerView);
-        if (isEnableDraggable)
-            windowView.setOnTouchListener(this);
+            if (isEnableDraggable)
+                windowView.setOnTouchListener(this);
+
+        windowView.setOnClickListener(this);
     }
 
     private void createWindow(HashMap<String, Object> paramsMap) {
@@ -220,7 +220,7 @@ public class WindowServiceNew extends Service implements View.OnTouchListener {
         setWindowManager();
         setWindowLayoutFromMap(paramsMap);
         WindowManager.LayoutParams params = getLayoutParams();
-        setWindowView(params, paramsMap,true);
+        setWindowView(params, paramsMap, true);
         wm.addView(windowView, params);
     }
 
@@ -229,7 +229,7 @@ public class WindowServiceNew extends Service implements View.OnTouchListener {
         WindowManager.LayoutParams params = (WindowManager.LayoutParams) windowView.getLayoutParams();
         params.width = (windowWidth == 0) ? android.view.WindowManager.LayoutParams.MATCH_PARENT : Commons.getPixelsFromDp(mContext, windowWidth);
         params.height = (windowHeight == 0) ? android.view.WindowManager.LayoutParams.WRAP_CONTENT : Commons.getPixelsFromDp(mContext, windowHeight);
-        setWindowView(params,paramsMap, false);
+        setWindowView(params, paramsMap, false);
         wm.updateViewLayout(windowView, params);
     }
 
@@ -246,9 +246,15 @@ public class WindowServiceNew extends Service implements View.OnTouchListener {
         } catch (IllegalArgumentException e) {
             Log.e(TAG, "view not found");
         }
-        if(isEverythingDone){
+        if (isEverythingDone) {
             stopSelf();
         }
+    }
+
+    @Override
+    public void onClick(View v) {
+        Intent intent = mContext.getPackageManager().getLaunchIntentForPackage(mContext.getPackageName());
+        mContext.startActivity(intent);
     }
 
     @SuppressLint("ClickableViewAccessibility")
@@ -269,13 +275,13 @@ public class WindowServiceNew extends Service implements View.OnTouchListener {
                 float x = event.getRawX();
                 float y = event.getRawY();
                 WindowManager.LayoutParams params = (WindowManager.LayoutParams) windowView.getLayoutParams();
-                int pixels =  mContext.getResources().getDisplayMetrics().widthPixels;
+                int pixels = mContext.getResources().getDisplayMetrics().widthPixels;
                 int newX = (int) (offsetX + x);
                 int newY = (int) (offsetY + y);
                 if (Math.abs(newX - originalXPos) < 1 && Math.abs(newY - originalYPos) < 1 && !moving) {
                     return false;
                 }
-                params.x = pixels - (int)x - (int)(windowWidthDP / 2.0);
+                params.x = pixels - (int) x - (int) (windowWidthDP / 2.0);
                 params.y = newY;
                 wm.updateViewLayout(windowView, params);
                 moving = true;
