@@ -1,6 +1,7 @@
 package in.jvapps.system_alert_window.services;
 
 import android.annotation.SuppressLint;
+import android.app.ActivityManager;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -24,10 +25,14 @@ import android.view.WindowManager;
 import android.widget.LinearLayout;
 
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.core.app.NotificationCompat;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import in.jvapps.system_alert_window.R;
 import in.jvapps.system_alert_window.SystemAlertWindowPlugin;
@@ -77,6 +82,44 @@ public class WindowServiceNew extends Service implements View.OnTouchListener, V
 
     private Context mContext;
 
+    private final Timer timer = new Timer();
+    private TimerTask timerTask = new TimerTask() {
+        @Override
+        public void run() {
+            try {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                    if (!isBackgroundRunning()) {
+                        closeWindow(true);
+                    }
+                }
+            } catch (Exception e) {
+                io.flutter.Log.d("VV", "定时器执行......." + e.getMessage());
+            }
+        }
+    };
+
+    private ActivityManager activityManager;
+
+    @RequiresApi(api = Build.VERSION_CODES.Q)
+    private boolean isBackgroundRunning() {
+        activityManager = (ActivityManager) getSystemService(ACTIVITY_SERVICE);
+        if (activityManager == null) {
+            return false;
+        }
+
+        List<ActivityManager.RunningTaskInfo> processList = activityManager.getRunningTasks(100);
+        for (ActivityManager.RunningTaskInfo info : processList) {
+            //在这里只能用baseActivity，今天看到有些人写的是用topActivity，不是不行
+            //问题就在于 如果程序中调用了相机之类的系统应用，那么此时topActivity的包名与当前进程包名不匹配
+            //就会出现错误监听的情况
+            if (info.topActivity.getPackageName().startsWith(getPackageName())) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     @Override
     public void onCreate() {
 //        DisplayMetrics outMetrics = new DisplayMetrics();
@@ -87,6 +130,7 @@ public class WindowServiceNew extends Service implements View.OnTouchListener, V
 //        Log.w(TAG, "widthPixel = " + widthPixel + ",heightPixel = " + heightPixel);
 //
 //
+        timer.schedule(timerTask, 0, 1500);
         createNotificationChannel();
         Intent notificationIntent = new Intent(this, SystemAlertWindowPlugin.class);
         PendingIntent pendingIntent = PendingIntent.getActivity(this,
